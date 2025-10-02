@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server"
+import crypto from "crypto"
 
-// 임시로 서버에 rawKey 하드코딩 (실제 환경에서는 DB의 key_hash 사용)
-const DUMMY_RAW_KEY = "95e48310119726a7d8c7019526dc14738bc1bad129d17cc5e8a9c3309c829833"
+const API_KEY_SALT = process.env.API_KEY_SALT || "default_salt"
+
+// 미리 준비한 rawKey (실제 발급 키 흉내)
+const RAW_KEY = "95e48310119726a7d8c7019526dc14738bc1bad129d17cc5e8a9c3309c829833"
+
+// 서버가 DB에 저장해뒀다고 가정하는 key_hash
+const DUMMY_HASHED_KEY = crypto
+  .createHash("sha256")
+  .update(RAW_KEY + API_KEY_SALT)
+  .digest("hex")
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization")
@@ -11,13 +20,17 @@ export async function GET(req: Request) {
 
   const rawKey = authHeader.replace("Bearer ", "").trim()
 
-  if (rawKey !== DUMMY_RAW_KEY) {
+  // 클라이언트가 보낸 rawKey를 다시 해시
+  const hashed = crypto.createHash("sha256").update(rawKey + API_KEY_SALT).digest("hex")
+
+  if (hashed !== DUMMY_HASHED_KEY) {
     return NextResponse.json({ error: "Invalid API Key" }, { status: 403 })
   }
 
   return NextResponse.json({
     ok: true,
-    message: "✅ Dummy API 인증 성공",
+    message: "✅ API Key 검증 성공",
     received: rawKey,
+    hashed,
   })
 }

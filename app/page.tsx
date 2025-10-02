@@ -1,66 +1,35 @@
 "use client"
-
 import { useState } from "react"
 
 export default function Home() {
-  const [result, setResult] = useState<string>("")
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle")
+  const [result, setResult] = useState("")
 
-  const callTrafficApi = async () => {
-    setStatus("idle")
-    setResult("⏳ 호출 중...")
+  const verifyKey = async () => {
+    setResult("⏳ 인증 중...")
 
     try {
-      const res = await fetch("/api/test", {
+      const res = await fetch("/api/verify-key", {
         headers: {
-          Authorization: "Bearer 95e48310119726a7d8c7019526dc14738bc1bad129d17cc5e8a9c3309c829833", // rawKey 직접 사용
+          Authorization: "Bearer 95e48310119726a7d8c7019526dc14738bc1bad129d17cc5e8a9c3309c829833",
         },
       })
-
-      if (!res.ok) {
-        setStatus("error")
-        throw new Error(`HTTP ${res.status}`)
-      }
-
       const data = await res.json()
-      setStatus("success")
       setResult(JSON.stringify(data, null, 2))
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err)
-      setStatus("error")
-      setResult("❌ 호출 실패: " + message)
+    } catch (e: any) {
+      setResult("❌ 오류: " + e.message)
     }
   }
 
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold">Dummy Client Site</h1>
-      <p className="mb-4">이 사이트는 API 키 인증을 테스트합니다.</p>
-
+    <main className="p-6">
+      <h1 className="text-xl font-bold">Dummy Verify Test</h1>
       <button
-        onClick={callTrafficApi}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        onClick={verifyKey}
+        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md"
       >
-        트래픽 API 호출
+        API 키 검증하기
       </button>
-
-      {status === "success" && (
-        <div className="mt-6 p-4 bg-green-100 text-green-800 rounded-md">
-          ✅ 인증 성공
-          <pre className="mt-2 bg-white p-2 rounded text-sm overflow-x-auto">{result}</pre>
-        </div>
-      )}
-
-      {status === "error" && (
-        <div className="mt-6 p-4 bg-red-100 text-red-800 rounded-md">
-          ❌ 인증 실패
-          <pre className="mt-2 bg-white p-2 rounded text-sm overflow-x-auto">{result}</pre>
-        </div>
-      )}
-
-      {status === "idle" && result && (
-        <pre className="mt-6 p-4 bg-gray-100 rounded-md text-sm">{result}</pre>
-      )}
+      <pre className="mt-6 p-4 bg-gray-100 rounded text-sm">{result}</pre>
     </main>
   )
 }
