@@ -65,15 +65,16 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const authHeader = req.headers.get("authorization")
-    const body = (await req.json().catch(() => ({}))) as { apiKey?: string }
+    let rawKey: string | undefined
 
-    // 헤더 우선, 없으면 body.apiKey
-    const rawKey = authHeader
-      ? authHeader.replace("Bearer ", "").trim()
-      : body.apiKey?.trim()
+    if (authHeader?.startsWith("Bearer ")) {
+      rawKey = authHeader.replace("Bearer ", "").trim()
+    } else {
+      const body = (await req.json()) as { apiKey?: string }
+      rawKey = body.apiKey?.trim()
+    }
 
     if (!rawKey) return withCors({ error: "API Key 필요" }, 400)
-
     if (!verifyKey(rawKey)) {
       return withCors({ error: "Invalid API Key", received: rawKey }, 403)
     }
@@ -88,3 +89,4 @@ export async function POST(req: Request) {
     return withCors({ error: message }, 500)
   }
 }
+
