@@ -11,14 +11,11 @@ export default function Home() {
     setResult("⏳ 호출 중...")
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/api/test`, // 더미 API 주소
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_MY_API_KEY}`,
-          },
-        }
-      )
+      const res = await fetch("/api/test", {
+        headers: {
+          Authorization: "Bearer 95e48310119726a7d8c7019526dc14738bc1bad129d17cc5e8a9c3309c829833", // rawKey 직접 사용
+        },
+      })
 
       if (!res.ok) {
         setStatus("error")
@@ -50,18 +47,14 @@ export default function Home() {
       {status === "success" && (
         <div className="mt-6 p-4 bg-green-100 text-green-800 rounded-md">
           ✅ 인증 성공
-          <pre className="mt-2 bg-white p-2 rounded text-sm overflow-x-auto">
-            {result}
-          </pre>
+          <pre className="mt-2 bg-white p-2 rounded text-sm overflow-x-auto">{result}</pre>
         </div>
       )}
 
       {status === "error" && (
         <div className="mt-6 p-4 bg-red-100 text-red-800 rounded-md">
           ❌ 인증 실패
-          <pre className="mt-2 bg-white p-2 rounded text-sm overflow-x-auto">
-            {result}
-          </pre>
+          <pre className="mt-2 bg-white p-2 rounded text-sm overflow-x-auto">{result}</pre>
         </div>
       )}
 
