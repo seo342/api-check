@@ -12,7 +12,7 @@ export default function Home() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/api-management/test-juice`,
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/test`, // 더미 API 주소
         {
           headers: {
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_MY_API_KEY}`,
@@ -28,18 +28,17 @@ export default function Home() {
       const data = await res.json()
       setStatus("success")
       setResult(JSON.stringify(data, null, 2))
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
       setStatus("error")
-      setResult("❌ 호출 실패: " + err.message)
+      setResult("❌ 호출 실패: " + message)
     }
   }
 
   return (
     <main className="p-8">
       <h1 className="text-2xl font-bold">Dummy Client Site</h1>
-      <p className="mb-4">
-        이 사이트는 우리 서비스의 API를 호출해서 인증 여부를 확인합니다.
-      </p>
+      <p className="mb-4">이 사이트는 API 키 인증을 테스트합니다.</p>
 
       <button
         onClick={callTrafficApi}
@@ -48,7 +47,6 @@ export default function Home() {
         트래픽 API 호출
       </button>
 
-      {/* 상태에 따른 결과 표시 */}
       {status === "success" && (
         <div className="mt-6 p-4 bg-green-100 text-green-800 rounded-md">
           ✅ 인증 성공
