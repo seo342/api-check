@@ -8,7 +8,7 @@ export default function Home() {
   const verifyKeyWithGet = async () => {
     setResult("⏳ GET 요청 중...")
     try {
-      const res = await fetch("/api/verify-key", {
+      const res = await fetch("/api/test", {
         headers: {
           Authorization:
             "Bearer 95e48310119726a7d8c7019526dc14738bc1bad129d17cc5e8a9c3309c829833",
@@ -26,7 +26,7 @@ export default function Home() {
   const verifyKeyWithPost = async () => {
     setResult("⏳ POST 요청 중...")
     try {
-      const res = await fetch("/api/verify-key", {
+      const res = await fetch("/api/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
