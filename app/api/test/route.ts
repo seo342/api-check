@@ -27,7 +27,7 @@ function withCors(data: object, status = 200) {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*", // 모든 도메인 허용
+      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
@@ -61,11 +61,17 @@ export async function GET(req: Request) {
   }
 }
 
-// ✅ POST 방식: Body 안에 { apiKey }
+// ✅ POST 방식: 헤더 or body.apiKey 둘 다 허용
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as { apiKey?: string }
-    const rawKey = body.apiKey?.trim()
+    const authHeader = req.headers.get("authorization")
+    const body = (await req.json().catch(() => ({}))) as { apiKey?: string }
+
+    // 헤더 우선, 없으면 body.apiKey
+    const rawKey = authHeader
+      ? authHeader.replace("Bearer ", "").trim()
+      : body.apiKey?.trim()
+
     if (!rawKey) return withCors({ error: "API Key 필요" }, 400)
 
     if (!verifyKey(rawKey)) {
